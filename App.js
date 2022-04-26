@@ -1,20 +1,54 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-
-export default function App() {
+import React, { useState } from "react";
+import {
+  Text,
+  Pressable,
+  ScrollView,
+  SafeAreaView,
+  Button
+} from "react-native";
+import Modal from "./components/Modal";
+import { appStyles } from "./styles/commonStyle";
+function App() {
+  const [todo, setTodo] = useState([]);
+  const [inputText, setInputText] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const addTodoHandler = () => {
+    setTodo((todo) => [...todo, inputText]);
+    setInputText((inputText) => "");
+    setIsVisible(false)
+  };
+  const removeTodo = (index) => {
+    const filteredList = todo.filter((_, i) => i !== index);
+    setTodo((todo) => filteredList);
+  };
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={appStyles.appContainer}>
+      <Button onPress={() => setIsVisible(true)} title="Add Todo" />
+      <Modal 
+        setInputText={setInputText} 
+        addTodoHandler={addTodoHandler} 
+        inputText={inputText} 
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+      />
+      <ScrollView style={appStyles.scrollView} alwaysBounceVertical={true}>
+        {todo.map((data, i) => (
+          <Pressable 
+            key={"todo" + i} 
+            onPress={() => removeTodo(i)}
+            // android_ripple={{ color: "red" }}
+            style={({ pressed }) => pressed && appStyles.pressedItem}
+          >
+            <Text
+              style={appStyles.todoItem}
+            >
+              {data}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
